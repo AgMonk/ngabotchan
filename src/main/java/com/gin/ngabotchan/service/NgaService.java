@@ -5,9 +5,6 @@ import com.gin.ngabotchan.util.RequestUtil;
 
 public interface NgaService {
     String NBSP = RequestUtil.decode("%0D%0A");
-    String cookie = "";
-    String tid = "";
-    String fid = "";
 
     /**
      * 发表主题

@@ -1,5 +1,6 @@
 package com.gin.ngabotchan.service.impl;
 
+import com.gin.ngabotchan.service.ConfigService;
 import com.gin.ngabotchan.service.NgaService;
 import com.gin.ngabotchan.util.RequestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,15 +28,14 @@ public class NgaServiceImpl implements NgaService {
      */
     @Override
     public String newTheme(String title, String content, String fid, String cookie) {
-        cookie = StringUtils.isEmpty(cookie) ? NgaService.cookie : cookie;
-        fid = StringUtils.isEmpty(fid) ? NgaService.fid : fid;
+        cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
+        fid = findCookieFidTid(fid, ConfigService.FID_MAP);
 
-        Map<String, String[]> paramMap = new HashMap<>();
+        Map<String, String[]> paramMap = new HashMap<>(10);
         paramMap.put("action", new String[]{"new"});
         paramMap.put("fid", new String[]{fid});
         paramMap.put("lite", new String[]{"htmljs"});
         paramMap.put("step", new String[]{"2"});
-//        paramMap.put("__inchst", new String[]{"UTF8"});
         paramMap.put("post_subject", new String[]{title});
         paramMap.put("post_content", new String[]{content});
 
@@ -67,16 +67,16 @@ public class NgaServiceImpl implements NgaService {
      */
     @Override
     public String reply(String content, String title, String fid, String tid, String cookie) {
-        cookie = StringUtils.isEmpty(cookie) ? NgaService.cookie : cookie;
-        fid = StringUtils.isEmpty(fid) ? NgaService.fid : fid;
-        tid = StringUtils.isEmpty(tid) ? NgaService.tid : tid;
+        cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
+        fid = findCookieFidTid(fid, ConfigService.FID_MAP);
+        tid = findCookieFidTid(tid, ConfigService.TID_MAP);
 
-        Map<String, String[]> paramMap = new HashMap<>();
+
+        Map<String, String[]> paramMap = new HashMap<>(10);
         paramMap.put("action", new String[]{"reply"});
         paramMap.put("fid", new String[]{fid});
         paramMap.put("tid", new String[]{tid});
         paramMap.put("lite", new String[]{"htmljs"});
-//        paramMap.put("__inchst", new String[]{"UTF8"});
         paramMap.put("step", new String[]{"2"});
         paramMap.put("post_subject", new String[]{title});
         paramMap.put("post_content", new String[]{content});
@@ -100,7 +100,7 @@ public class NgaServiceImpl implements NgaService {
     /**
      * 把html代码中的a标签替换为NGA格式的链接
      *
-     * @param html
+     * @param html html代码
      */
     public static String replaceLinks(String html) {
         Document document = Jsoup.parse(html);
@@ -116,4 +116,17 @@ public class NgaServiceImpl implements NgaService {
         return html;
     }
 
+    /**
+     * 根据名称查找对应的fid、tid或cookie
+     *
+     * @param v   名称
+     * @param map 查找目标
+     * @return 返回
+     */
+    private static String findCookieFidTid(String v, Map<String, String> map) {
+        String fromMap = map.get(v);
+        v = !StringUtils.isEmpty(fromMap) ? fromMap : v;
+        v = StringUtils.isEmpty(v) ? map.entrySet().iterator().next().getValue() : v;
+        return v;
+    }
 }

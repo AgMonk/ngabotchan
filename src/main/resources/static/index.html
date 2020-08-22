@@ -117,9 +117,9 @@
         </tr>
         <tr>
             <td>正文
-                <button @click="repostReply(item.content)">转发回复</button>
+                <button @click="repostReply(item.title,item.content)">转发回复</button>
             </td>
-            <td><textarea style="width: 80%" rows="5">{{item.content}}</textarea></td>
+            <td><textarea style="width: 80%" rows="7">{{item.content}}</textarea></td>
         </tr>
 
     </table>
@@ -166,7 +166,7 @@
                 this.repost.title = title;
                 this.repost.content = content;
 
-                get("wb/newTheme", this.repost, function (res) {
+                get("nga/newTheme", this.repost, function (res) {
                     console.log(res.data);
                     if (res.data.includes("http")) {
                         window.open(res.data);
@@ -176,9 +176,10 @@
                 })
             },
             repostReply(content) {
+                this.repost.title = title;
                 this.repost.content = content;
 
-                get("wb/reply", this.repost, function (res) {
+                get("nga/reply", this.repost, function (res) {
                     console.log(res.data);
                     if (res.data.includes("http")) {
                         window.open(res.data);
