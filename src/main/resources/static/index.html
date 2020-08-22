@@ -95,7 +95,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <button @click="auto()">自动开关</button>
+                <button @click="auto()">自动开关</button>&nbsp;
+                <button @click="testMode()">测试模式</button>&nbsp;
             </td>
 
         </tr>
@@ -190,6 +191,12 @@
                 get("wb/auto", null, function (res) {
                     alert(res.data)
                 })
+            },
+            testMode() {
+                get("wb/testMode", null, function (res) {
+                    alert(res.data)
+                })
+
             }
         },
         created() {

@@ -17,12 +17,23 @@ import java.util.*;
 
 import static com.gin.ngabotchan.service.impl.NgaServiceImpl.replaceLinks;
 
+/**
+ * @author bx002
+ */
 @Slf4j
 @RestController
 @RequestMapping("/wb")
 public class WeiboController {
     static String nbsp = NgaService.NBSP;
+    /**
+     * 自动搬运开关
+     */
     static boolean auto = false;
+    /**
+     * 测试模式开关，测试模式下将把搬运内容发到水楼；关闭后发到主版面
+     */
+    static boolean testMode = true;
+
     /**
      * 已经转发过的微博id
      */
@@ -47,8 +58,8 @@ public class WeiboController {
         String result = RequestUtil.get(u, "", null, "", "utf-8");
         JSONObject json = JSONObject.parseObject(result);
         JSONArray cards = json.getJSONObject("data").getJSONArray("cards");
-        JSONArray statuses = null;
-        Map<String, String> createdAtMap = new HashMap<>();
+        JSONArray statuses;
+        Map<String, String> createdAtMap = new HashMap<>(cards.size());
 
         if (b) {
             //另一个接口
@@ -86,7 +97,6 @@ public class WeiboController {
 
     @RequestMapping("/gf")
     public List<WeiboCard> gf() {
-//        System.err.println("循环爬取");
         List<WeiboCard> list = get("5611537367", true);
 
         list.forEach(card -> parseGirlsFrontLineCards(card, false));
@@ -98,7 +108,13 @@ public class WeiboController {
     @RequestMapping("/auto")
     public String auto() {
         auto = !auto;
-        return "开启状态： " + auto;
+        return "自动转发： " + (auto ? "开启" : "关闭");
+    }
+
+    @RequestMapping("/testMode")
+    public String testMode() {
+        testMode = !testMode;
+        return "测试模式： " + (testMode ? "开启" : "关闭");
     }
 
     /**
@@ -119,12 +135,18 @@ public class WeiboController {
             if (!idList.contains(card.getId()) && recent) {
 
                 parseGirlsFrontLineCards(card, true);
+
+
                 Collection<String> cookies = ConfigService.COOKIE_MAP.keySet();
 
                 for (String cookie : cookies) {
                     log.info("自动发帖：" + card.getTitle());
-                    String s = newTheme(card.getTitle(), card.getContent(), "少女前线", cookie);
-//                    String s = reply(card.getContent(), card.getTitle(), "测试版", "测试楼", cookie);
+                    String s;
+                    if (testMode) {
+                        s = reply(card.getContent(), card.getTitle(), "少女前线", "少前水楼", cookie);
+                    } else {
+                        s = newTheme(card.getTitle(), card.getContent(), "少女前线", cookie);
+                    }
                     if (s.contains("http")) {
                         idList.add(card.getId());
                         break;
