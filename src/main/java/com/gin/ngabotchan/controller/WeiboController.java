@@ -6,6 +6,7 @@ import com.gin.ngabotchan.entity.WeiboCard;
 import com.gin.ngabotchan.service.ConfigService;
 import com.gin.ngabotchan.service.NgaService;
 import com.gin.ngabotchan.util.RequestUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import static com.gin.ngabotchan.service.impl.NgaServiceImpl.replaceLinks;
+
+@Slf4j
 @RestController
 @RequestMapping("/wb")
 public class WeiboController {
@@ -73,6 +77,7 @@ public class WeiboController {
                 w.setCreatedTime(createdAtMap.get(w.getId()));
             }
 
+
             list.add(w);
         }
         return list;
@@ -84,7 +89,8 @@ public class WeiboController {
 //        System.err.println("循环爬取");
         List<WeiboCard> list = get("5611537367", true);
 
-        list.forEach(card -> parseGirlsFrontLineCards(card));
+        list.forEach(card -> parseGirlsFrontLineCards(card, false));
+
 
         return list;
     }
@@ -98,8 +104,7 @@ public class WeiboController {
     /**
      * 自动转发
      */
-    @Scheduled(cron = "0/5 * * * * *")
-//    @Scheduled(cron = "0/5 29-30,59,0,1 15-18 * * *")
+    @Scheduled(cron = "0/10 * * * * *")
     public void scScheduledGf() {
         if (!auto) {
             return;
@@ -113,12 +118,13 @@ public class WeiboController {
             boolean recent = at.contains("刚") || at.contains("1分钟") || at.contains("2分钟");
             if (!idList.contains(card.getId()) && recent) {
 
-                parseGirlsFrontLineCards(card);
-                Collection<String> cookies = ConfigService.COOKIE_MAP.values();
+                parseGirlsFrontLineCards(card, true);
+                Collection<String> cookies = ConfigService.COOKIE_MAP.keySet();
 
                 for (String cookie : cookies) {
+                    log.info("自动发帖：" + card.getTitle());
                     String s = newTheme(card.getTitle(), card.getContent(), "少女前线", cookie);
-//                    String s = reply(card.getContent(), card.getTitle(), "少女前线", "少前水楼", cookie);
+//                    String s = reply(card.getContent(), card.getTitle(), "测试版", "测试楼", cookie);
                     if (s.contains("http")) {
                         idList.add(card.getId());
                         break;
@@ -152,41 +158,57 @@ public class WeiboController {
      * 解析少前微博的发言格式，设置发帖的标题和正文
      *
      * @param card
+     * @param fullText 是否请求全文
      * @return
      */
-    private static WeiboCard parseGirlsFrontLineCards(WeiboCard card) {
-        StringBuilder content = new StringBuilder(card.getRawText());
+    private static WeiboCard parseGirlsFrontLineCards(WeiboCard card, boolean fullText) {
+        //设置标题
+        String rawText = card.getRawText();
         String title = "";
-
-        boolean b = true;
-        while (content.toString().contains("#")) {
-            if (b) {
-                content = new StringBuilder(content.toString().replaceFirst("#", "["));
-            } else {
-                content = new StringBuilder(content.toString().replaceFirst("#", "]"));
-            }
-            b = !b;
-        }
-
-        //设置title 转换tag
-        if (content.toString().contains("]")) {
-            title = content.substring(0, content.lastIndexOf("]") + 1);
-            content = new StringBuilder(content.substring(content.lastIndexOf("]") + 1));
-
-            if (content.toString().contains("！")) {
-                title += content.substring(0, content.indexOf("！"));
+        if (rawText.contains("#")) {
+            title = rawText.substring(0, rawText.lastIndexOf("#") + 1);
+            rawText = rawText.substring(rawText.lastIndexOf("#") + 1);
+            boolean b = true;
+            while (title.contains("#")) {
+                if (b) {
+                    title = title.replaceFirst("#", "[");
+                } else {
+                    title = title.replaceFirst("#", "]");
+                }
+                b = !b;
             }
         }
-        //设置title 如果是维护公告
-        if (content.toString().contains("维护具体结束时间")) {
-            int start = content.indexOf("计划于") + 3;
-            int end = content.indexOf("进行");
-            title = "[微博拌匀] 维护公告 " + content.substring(start, end);
+        if (rawText.contains("！")) {
+            title += rawText.substring(0, rawText.indexOf("！") + 1);
         }
-
+        //如果是维护公告
+        if (rawText.contains("维护具体结束时间")) {
+            int start = rawText.indexOf("计划于") + 3;
+            int end = rawText.indexOf("进行");
+            title = "[微博拌匀] 维护公告 " + rawText.substring(start, end);
+        }
+        //如果是维护延长
+        if (rawText.contains("维护延长")) {
+            int start = rawText.indexOf("原定于");
+            int end = rawText.indexOf("开服。") + 3;
+            title = "[微博拌匀] 维护延长公告 " + rawText.substring(start, end);
+        }
         //设置title  保险
         if ("".equals(title)) {
-            title = content.substring(0, 20);
+            title = rawText.substring(0, 20);
+        }
+
+        //设置正文
+        StringBuilder content = new StringBuilder(rawText);
+
+        if (fullText) {
+            //获取全文
+            String result = RequestUtil.get("https://m.weibo.cn/status/" + card.getId(),
+                    null, null, null, "utf-8");
+            result = result.substring(result.indexOf("\"text\":") + 9);
+            result = result.substring(0, result.indexOf("\","));
+            result = replaceLinks(result);
+            content = new StringBuilder(result);
         }
 
 
@@ -206,6 +228,7 @@ public class WeiboController {
 
         card.setTitle(title);
         card.setContent(content.toString());
+
 
         return card;
     }

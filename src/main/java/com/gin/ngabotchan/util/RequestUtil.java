@@ -14,8 +14,6 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -337,16 +335,14 @@ public class RequestUtil {
         return encode;
     }
 
-
-    public static void main(String[] args) {
-        String html = get("https://m.weibo.cn/status/4540412688340564", null, null, null, "utf-8");
-
-        html = html.substring(html.indexOf("\"text\": \"<a  href=\\\"") + 9);
-        html = html.substring(0, html.indexOf("\","));
-        Document document = Jsoup.parse(html);
-
-        System.err.println(document.text());
-
-
-    }
+//    public static void main(String[] args) {
+//        String html = get("https://m.weibo.cn/status/4540412688340564", null, null, null, "utf-8");
+//
+//        html = html.substring(html.indexOf("\"text\": \"<a  href=\\\"") + 9);
+//        html = html.substring(0, html.indexOf("\","));
+//
+//        html = replaceLinks(html);
+//
+//        System.err.println(html);
+//    }
 }

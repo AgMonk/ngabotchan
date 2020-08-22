@@ -2,6 +2,11 @@ package com.gin.ngabotchan.service.impl;
 
 import com.gin.ngabotchan.service.NgaService;
 import com.gin.ngabotchan.util.RequestUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -9,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class NgaServiceImpl implements NgaService {
 
 
@@ -91,5 +97,23 @@ public class NgaServiceImpl implements NgaService {
         return post;
     }
 
+    /**
+     * 把html代码中的a标签替换为NGA格式的链接
+     *
+     * @param html
+     */
+    public static String replaceLinks(String html) {
+        Document document = Jsoup.parse(html);
+        html = document.text();
+        Elements aTags = document.getElementsByTag("a");
+        for (Element aTag : aTags) {
+            String href = aTag.attr("href").replace("\\\"", "");
+            String text = aTag.text();
+            String ngaTag = "[url=" + href + "]" + text + "[/url]";
+            html = html.replace(text, ngaTag);
+        }
+
+        return html;
+    }
 
 }
