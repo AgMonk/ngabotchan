@@ -131,7 +131,7 @@ public class WeiboController {
         for (WeiboCard card : list) {
             String at = card.getCreatedAt();
 
-            boolean recent = at.contains("刚") || at.contains("1分钟") || at.contains("2分钟");
+            boolean recent = at.contains("刚") || "1分钟前".equals(at) || "2分钟前".equals(at);
             if (!idList.contains(card.getId()) && recent) {
 
                 weiboService.parseGirlsFrontLineCards(card, true);
