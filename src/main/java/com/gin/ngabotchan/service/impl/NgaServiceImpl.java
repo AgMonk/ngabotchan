@@ -31,6 +31,8 @@ public class NgaServiceImpl implements NgaService {
         cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
 
+        title = title.length() > 50 ? title.substring(0, 50) : title;
+
         Map<String, String[]> paramMap = new HashMap<>(10);
         paramMap.put("action", new String[]{"new"});
         paramMap.put("fid", new String[]{fid});
@@ -71,6 +73,7 @@ public class NgaServiceImpl implements NgaService {
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
         tid = findCookieFidTid(tid, ConfigService.TID_MAP);
 
+        title = title.length() > 50 ? title.substring(0, 50) : title;
 
         Map<String, String[]> paramMap = new HashMap<>(10);
         paramMap.put("action", new String[]{"reply"});
@@ -88,6 +91,7 @@ public class NgaServiceImpl implements NgaService {
             int s = post.indexOf("/read.php?tid=");
             int e = post.indexOf("\",\"5\"");
             post = "https://bbs.nga.cn" + post.substring(s, e);
+
         }
         if (post.contains("你没有登录")) {
             post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";

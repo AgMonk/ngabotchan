@@ -39,9 +39,14 @@ public class WeiboServiceImpl implements WeiboService {
                 b = !b;
             }
         }
-        String endOfTitle = "！";
-        if (rawText.contains(endOfTitle)) {
-            title += rawText.substring(0, rawText.indexOf(endOfTitle) + 1);
+
+
+        String Exclamation = "！";
+        String period = "。";
+        if (rawText.contains(Exclamation) || rawText.contains(period)) {
+            int e1 = rawText.indexOf(Exclamation);
+            int e2 = rawText.indexOf(period);
+            title += rawText.substring(0, Math.min(e1, e2) + 1);
         }
         //如果是维护公告
         if (rawText.contains("维护具体结束时间")) {
