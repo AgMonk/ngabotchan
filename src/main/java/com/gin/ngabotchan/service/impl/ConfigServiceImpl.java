@@ -16,7 +16,7 @@ public class ConfigServiceImpl implements ConfigService {
     /**
      * 发帖使用的账号cookie
      */
-//    final static File COOKIES = new File("d:/cookie.txt");
+    final static File COOKIES_TEST = new File("d:/cookie.txt");
     final static File COOKIES = new File("cookie.txt");
     /**
      * 预设的版面id
@@ -73,6 +73,7 @@ public class ConfigServiceImpl implements ConfigService {
 
 
         loadConfig(COOKIES, COOKIE_MAP);
+        loadConfig(COOKIES_TEST, COOKIE_MAP);
         loadConfig(FID, FID_MAP);
         loadConfig(TID, TID_MAP);
     }
@@ -82,6 +83,10 @@ public class ConfigServiceImpl implements ConfigService {
      * 从文件中读取配置信息写入map
      */
     private static void loadConfig(File file, Map<String, String> map) {
+        if (!file.exists()) {
+            return;
+        }
+
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
