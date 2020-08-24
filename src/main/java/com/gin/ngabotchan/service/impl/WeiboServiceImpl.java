@@ -53,6 +53,8 @@ public class WeiboServiceImpl implements WeiboService {
         if (rawText.contains(Exclamation) || rawText.contains(period)) {
             int e1 = rawText.indexOf(Exclamation);
             int e2 = rawText.indexOf(period);
+            e1 = e1 == -1 ? 100 : e1;
+            e2 = e2 == -1 ? 100 : e2;
             title += rawText.substring(0, Math.min(e1, e2) + 1);
         }
         //如果是维护公告
