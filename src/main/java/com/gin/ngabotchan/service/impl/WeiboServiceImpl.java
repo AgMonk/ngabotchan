@@ -6,12 +6,19 @@ import com.gin.ngabotchan.service.WeiboService;
 import com.gin.ngabotchan.util.RequestUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.gin.ngabotchan.service.impl.NgaServiceImpl.replaceLinks;
 
 @Service
 public class WeiboServiceImpl implements WeiboService {
+    final static List<String> invalidKeyword = new ArrayList<>();
+
+    static {
+        invalidKeyword.add("亲爱的指挥官们，");
+    }
+
     static String nbsp = NgaService.NBSP;
 
     /**
@@ -63,6 +70,13 @@ public class WeiboServiceImpl implements WeiboService {
         //设置title  保险
         if ("".equals(title)) {
             title = rawText.substring(0, 20);
+        }
+
+        //删除废话
+        for (String s : invalidKeyword) {
+            if (title.contains(s)) {
+                title = title.replace(s, "");
+            }
         }
 
         //设置正文
