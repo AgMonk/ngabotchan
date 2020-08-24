@@ -17,6 +17,7 @@ public class WeiboServiceImpl implements WeiboService {
 
     static {
         invalidKeyword.add("亲爱的指挥官们，");
+        invalidKeyword.add("亲爱的指挥官，");
     }
 
     static String nbsp = NgaService.NBSP;
