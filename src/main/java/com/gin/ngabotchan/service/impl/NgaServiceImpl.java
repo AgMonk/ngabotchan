@@ -67,7 +67,7 @@ public class NgaServiceImpl implements NgaService {
         String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
                 paramMap, cookie, null, null, null, null, "gbk");
         log.info(post);
-        
+
         if (post.contains("发贴完毕")) {
             int s = post.lastIndexOf("/read.php?tid=");
             int e = post.lastIndexOf("&_ff");
@@ -223,7 +223,7 @@ public class NgaServiceImpl implements NgaService {
         formData.put("v2", "1");
         formData.put("auth", auth);
         formData.put("origin_domain", "bbs.nga.cn");
-        formData.put("fid", "-993945");
+        formData.put("fid", "-547859");
         formData.put("__output", "8");
         HashMap<String, File> fileMap = new HashMap<>();
         fileMap.put("attachment_file" + i, file);
