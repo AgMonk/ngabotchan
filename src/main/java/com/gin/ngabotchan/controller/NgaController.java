@@ -16,11 +16,11 @@ public class NgaController {
 
     @RequestMapping("/newTheme")
     public String newTheme(String title, String content, String fid, String cookie) {
-        return ngaService.newTheme(title, content, fid, cookie);
+        return ngaService.newTheme(title, content, fid, cookie, null);
     }
 
     @RequestMapping("/reply")
     public String reply(String content, String title, String fid, String tid, String cookie) {
-        return ngaService.reply(content, title, fid, tid, cookie);
+        return ngaService.reply(content, title, fid, tid, cookie, null);
     }
 }

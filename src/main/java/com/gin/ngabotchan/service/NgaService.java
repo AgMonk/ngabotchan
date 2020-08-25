@@ -3,6 +3,8 @@ package com.gin.ngabotchan.service;
 
 import com.gin.ngabotchan.util.RequestUtil;
 
+import java.io.File;
+
 public interface NgaService {
     String NBSP = RequestUtil.decode("%0D%0A");
 
@@ -13,9 +15,10 @@ public interface NgaService {
      * @param content 正文
      * @param fid     版面id
      * @param cookie  cookie
+     * @param files
      * @return 返回
      */
-    String newTheme(String title, String content, String fid, String cookie);
+    String newTheme(String title, String content, String fid, String cookie, File[] files);
 
     /**
      * 发表回复
@@ -24,9 +27,10 @@ public interface NgaService {
      * @param fid     版面id
      * @param tid     帖子id
      * @param cookie  cookie
+     * @param files
      * @return 返回
      */
-    String reply(String content, String title, String fid, String tid, String cookie);
+    String reply(String content, String title, String fid, String tid, String cookie, File[] files);
 
 
 }

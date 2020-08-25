@@ -1,5 +1,6 @@
 package com.gin.ngabotchan.controller;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gin.ngabotchan.entity.WeiboCard;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -132,23 +134,36 @@ public class WeiboController {
             String at = card.getCreatedAt();
 
             boolean recent = at.contains("刚") || "1分钟前".equals(at) || "2分钟前".equals(at);
-            if (!idList.contains(card.getId()) && recent) {
+            boolean recent1 = !card.getRawText().contains("夏季大型战役") && !card.getRawText().contains("秘密涡点");
+            String cardId = card.getId();
+            if (!idList.contains(cardId) && recent) {
 
                 weiboService.parseGirlsFrontLineCards(card, true);
 
+                File[] files = null;
+                List<String> pics = card.getPics();
+                if (pics != null) {
+                    File file = new File(cardId);
+                    file.mkdirs();
+                    for (String pic : pics) {
+                        log.debug("下载文件：" + pic);
+                        HttpUtil.downloadFile(pic, file, 30 * 1000);
+                    }
+                    files = file.listFiles();
+                }
 
                 Collection<String> cookies = ConfigService.COOKIE_MAP.keySet();
 
                 for (String cookie : cookies) {
                     log.info("自动发帖：" + card.getTitle());
-                    String s;
+                    String s = "";
                     if (testMode) {
-                        s = ngaService.reply(card.getContent(), card.getTitle(), "少女前线", "少前水楼", cookie);
+                        s = ngaService.reply(card.getContent(), card.getTitle(), "少女前线", "少前水楼", cookie, files);
                     } else {
-                        s = ngaService.newTheme(card.getTitle(), card.getContent(), "少女前线", cookie);
+                        s = ngaService.newTheme(card.getTitle(), card.getContent(), "少女前线", cookie, files);
                     }
                     if (s.contains("http")) {
-                        idList.add(card.getId());
+                        idList.add(cardId);
                         break;
                     }
                 }

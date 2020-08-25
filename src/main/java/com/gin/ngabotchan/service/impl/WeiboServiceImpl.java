@@ -96,18 +96,19 @@ public class WeiboServiceImpl implements WeiboService {
         }
 
 
-        List<String> pics = card.getPics();
-        if (pics != null) {
-            content.append(nbsp);
+//        List<String> pics = card.getPics();
+//        if (pics != null) {
+//            content.append(nbsp);
+//
+//            for (String pic : pics) {
+//                content.append(nbsp).append("[img]").append(pic).append("[/img]");
+//            }
+//
+//        }
 
-            for (String pic : pics) {
-                content.append(nbsp).append("[img]").append(pic).append("[/img]");
-            }
+        content.append(nbsp);
 
-        }
-
-        content.append(nbsp).append(nbsp);
-        content.append("[url=").append(card.getSourceUrl()).append("]原微博[/url]");
+        content.append("[url=").append(card.getSourceUrl()).append("]原微博[/url]").append(nbsp).append(nbsp);
 
 
         card.setTitle(title);
