@@ -187,7 +187,7 @@ public class NgaServiceImpl implements NgaService {
             StringBuilder acb = new StringBuilder();
 
             for (int i = 0; i < files.length; i++) {
-                JSONObject uploaded = uploadFile(i + 1, files[i], auth, attach_url);
+                JSONObject uploaded = uploadFile(i + 1, files[i], auth, attach_url, fid);
                 JSONObject data = uploaded.getJSONObject("data");
                 String attachments = data.getString("attachments");
                 String attachments_check = data.getString("attachments_check");
@@ -208,7 +208,7 @@ public class NgaServiceImpl implements NgaService {
         return urls;
     }
 
-    private static JSONObject uploadFile(int i, File file, String auth, String attach_url) {
+    private static JSONObject uploadFile(int i, File file, String auth, String attach_url, String fid) {
         HashMap<String, String> formData = new HashMap<>();
         formData.put("attachment_file" + i + "_watermark", "");
         formData.put("attachment_file" + i + "_dscp", "image" + i);
@@ -223,7 +223,7 @@ public class NgaServiceImpl implements NgaService {
         formData.put("v2", "1");
         formData.put("auth", auth);
         formData.put("origin_domain", "bbs.nga.cn");
-        formData.put("fid", "-547859");
+        formData.put("fid", fid);
         formData.put("__output", "8");
         HashMap<String, File> fileMap = new HashMap<>();
         fileMap.put("attachment_file" + i, file);
