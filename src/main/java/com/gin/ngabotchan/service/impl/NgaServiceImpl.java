@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class NgaServiceImpl implements NgaService {
-    static final int MAX_TITLE_LENGTH = 50;
+    static final int MAX_TITLE_LENGTH = 100;
 
     /**
      * @param title   标题
