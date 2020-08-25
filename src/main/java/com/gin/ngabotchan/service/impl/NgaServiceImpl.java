@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.gin.ngabotchan.service.ConfigService;
 import com.gin.ngabotchan.service.NgaService;
 import com.gin.ngabotchan.util.ReqUtil;
-import com.gin.ngabotchan.util.RequestUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -47,9 +46,28 @@ public class NgaServiceImpl implements NgaService {
         paramMap.put("post_subject", new String[]{title});
         paramMap.put("post_content", new String[]{content});
 
-        String post = RequestUtil.post("https://bbs.nga.cn/post.php",
-                "", paramMap, null, cookie, "gbk");
+        List<String> urlList = uploadFiles(paramMap, files, cookie, "reply", fid, "");
 
+        if (urlList != null) {
+            StringBuilder sb = new StringBuilder(content);
+            for (String url : urlList) {
+                if (url.contains("mp4")) {
+                    sb.append("[flash=video]./").append(url).append("[/flash]").append(NBSP);
+
+                } else {
+                    sb.append("[img]./").append(url).append("[/img]").append(NBSP);
+                }
+            }
+            paramMap.put("post_content", new String[]{sb.toString()});
+        }
+
+
+//        String post = RequestUtil.post("https://bbs.nga.cn/post.php",
+//                "", paramMap, null, cookie, "gbk");
+        String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
+                paramMap, cookie, null, null, null, null, "gbk");
+        log.info(post);
+        
         if (post.contains("发贴完毕")) {
             int s = post.lastIndexOf("/read.php?tid=");
             int e = post.lastIndexOf("&_ff");
