@@ -35,21 +35,23 @@ public class WeiboCard {
     /**
      * 少女前线 5611537367
      */
-    final static String UID_GIRLS_FRONT_LINE = "5611537367";
+    public final static String UID_GIRLS_FRONT_LINE = "5611537367";
     /**
      * 云图计划 7308178516
      */
-    final static String UID_PLAN_OF_CLOUD = "7308178516";
+    public final static String UID_PLAN_OF_CLOUD = "7308178516";
 
-    final static List<String> invalidKeyword = new ArrayList<>();
+    final static List<String> INVALID_KEYWORD = new ArrayList<>();
 
     static {
-        invalidKeyword.add("亲爱的指挥官们，");
-        invalidKeyword.add("亲爱的指挥官，");
-        invalidKeyword.add("[少女前线] ");
-        invalidKeyword.add("现在为您带来的是");
-        invalidKeyword.add("现在为各位指挥官带来");
-        invalidKeyword.add("现在为大家带来");
+        INVALID_KEYWORD.add("亲爱的指挥官们，");
+        INVALID_KEYWORD.add("亲爱的指挥官，");
+        INVALID_KEYWORD.add("[少女前线]");
+        INVALID_KEYWORD.add(" ");
+        INVALID_KEYWORD.add("现在为您带来的是");
+        INVALID_KEYWORD.add("现在为各位指挥官带来");
+        INVALID_KEYWORD.add("现在为大家带来");
+        INVALID_KEYWORD.add("现在为您送上");
     }
 
     String sourceUrl, id, createdAt, rawText, createdStr, content, title, bbsCode;
@@ -59,31 +61,6 @@ public class WeiboCard {
 
 
     public WeiboCard(JSONObject json) {
-        JSONObject mblog = json.getJSONObject("mblog");
-
-        if (mblog == null) {
-            return;
-        }
-
-        id = mblog.getString("mid");
-        sourceUrl = "https://m.weibo.cn/status/" + id;
-        createdAt = mblog.getString("created_at");
-        rawText = mblog.getString("raw_text");
-
-        JSONArray pics = mblog.getJSONArray("pics");
-
-        if (pics != null) {
-            this.pics = new ArrayList<>(pics.size());
-            for (int i = 0; i < pics.size(); i++) {
-                String s = pics.getJSONObject(i).getJSONObject("large").getString("url");
-                s = s.replace("https", "http");
-                this.pics.add(s);
-            }
-
-        }
-    }
-
-    public WeiboCard(JSONObject json, boolean b) {
         this.createdAt = json.getString("created_at");
         this.id = json.getString("id");
         this.rawText = json.getString("text");
@@ -146,7 +123,7 @@ public class WeiboCard {
                 String pathname = dirPath + "/" + pic.substring(pic.lastIndexOf("/") + 1);
                 File img = new File(pathname);
                 if (!img.exists()) {
-                    log.debug("下载文件({})：" + pic, id);
+                    log.info("下载文件({})：" + pic, id);
                     HttpUtil.downloadFile(pic, dir, 30 * 1000);
                 }
                 latch.countDown();
@@ -221,7 +198,7 @@ public class WeiboCard {
         }
 
         //删除废话
-        for (String s : invalidKeyword) {
+        for (String s : INVALID_KEYWORD) {
             if (c.contains(s)) {
                 c = c.replace(s, "");
             }
@@ -265,9 +242,10 @@ public class WeiboCard {
             tb.subSequence(0, 65);
         }
         if (tb.length() < 50) {
-            tb.insert(0, "[微博搬运] ");
+            tb.insert(0, "[微博搬运]");
         }
-        this.title = tb.toString();
+        this.title = tb.toString().replace(nbsp, "").replace("\n", "");
+        ;
     }
 
     @Override

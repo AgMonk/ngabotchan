@@ -5,10 +5,6 @@ import com.gin.ngabotchan.service.ConfigService;
 import com.gin.ngabotchan.service.NgaService;
 import com.gin.ngabotchan.util.ReqUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -36,37 +32,11 @@ public class NgaServiceImpl implements NgaService {
         cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
 
-        title = title.length() > MAX_TITLE_LENGTH ? title.substring(0, MAX_TITLE_LENGTH) : title;
+        Map<String, String[]> paramMap = createParamMap("new", fid, null, title);
 
-        Map<String, String[]> paramMap = new HashMap<>(10);
-        paramMap.put("action", new String[]{"new"});
-        paramMap.put("fid", new String[]{fid});
-        paramMap.put("lite", new String[]{"htmljs"});
-        paramMap.put("step", new String[]{"2"});
-        paramMap.put("post_subject", new String[]{title});
-        paramMap.put("post_content", new String[]{content});
+        List<String> urlList = uploadFiles(paramMap, files, cookie, "new", fid, "");
 
-        List<String> urlList = uploadFiles(paramMap, files, cookie, "reply", fid, "");
-
-        if (urlList != null) {
-            StringBuilder sb = new StringBuilder(content);
-            for (String url : urlList) {
-                if (url.contains("mp4")) {
-                    sb.append("[flash=video]./").append(url).append("[/flash]").append(NBSP);
-
-                } else {
-                    sb.append("[img]./").append(url).append("[/img]").append(NBSP);
-                }
-            }
-            paramMap.put("post_content", new String[]{sb.toString()});
-        }
-
-
-//        String post = RequestUtil.post("https://bbs.nga.cn/post.php",
-//                "", paramMap, null, cookie, "gbk");
-        String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
-                paramMap, cookie, null, null, null, null, "gbk");
-        log.info(post);
+        String post = send(content, cookie, paramMap, urlList);
 
         if (post.contains("发贴完毕")) {
             int s = post.lastIndexOf("/read.php?tid=");
@@ -74,10 +44,7 @@ public class NgaServiceImpl implements NgaService {
             post = "https://bbs.nga.cn" + post.substring(s, e);
             log.info("已发帖 标题： " + title + " 地址：" + post);
         }
-        if (post.contains("你没有登录")) {
-            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
 
-        }
 
         return post;
     }
@@ -93,28 +60,44 @@ public class NgaServiceImpl implements NgaService {
      * @return 返回
      */
     @Override
-    public String reply(String content, String title, String fid, String tid, String cookie, File[] files) {
+    public String reply(String title, String content, String fid, String tid, String cookie, File[] files) {
         cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
         tid = findCookieFidTid(tid, ConfigService.TID_MAP);
-        title = title.replace(NBSP, "").replace("\\n", "");
-        title = title.length() > MAX_TITLE_LENGTH ? title.substring(0, MAX_TITLE_LENGTH) : title;
+
+        Map<String, String[]> paramMap = createParamMap("reply", fid, tid, title);
+
+        List<String> urlList = uploadFiles(paramMap, files, cookie, "reply", fid, tid);
+
+        String post = send(content, cookie, paramMap, urlList);
+
+        if (post.contains("发贴完毕")) {
+            int s = post.indexOf("/read.php?tid=");
+            int e = post.indexOf("\",\"5\"");
+            post = "https://bbs.nga.cn" + post.substring(s, e);
+            log.info("已发帖 标题： " + title);
+        }
+
+        return post;
+    }
+
+    private static Map<String, String[]> createParamMap(String action, String fid, String tid, String title) {
 
         Map<String, String[]> paramMap = new HashMap<>(10);
-        paramMap.put("action", new String[]{"reply"});
+        paramMap.put("action", new String[]{action});
         paramMap.put("fid", new String[]{fid});
         paramMap.put("tid", new String[]{tid});
         paramMap.put("lite", new String[]{"htmljs"});
         paramMap.put("step", new String[]{"2"});
         paramMap.put("post_subject", new String[]{title});
-        paramMap.put("post_content", new String[]{content});
         paramMap.put("tpic_misc_bit1", new String[]{"40"});
 
+        return paramMap;
+    }
 
-        List<String> urlList = uploadFiles(paramMap, files, cookie, "reply", fid, tid);
-
+    private static String send(String content, String cookie, Map<String, String[]> paramMap, List<String> urlList) {
+        StringBuilder sb = new StringBuilder(content);
         if (urlList != null) {
-            StringBuilder sb = new StringBuilder(content);
             for (String url : urlList) {
                 if (url.contains("mp4")) {
                     sb.append("[flash=video]./").append(url).append("[/flash]").append(NBSP);
@@ -123,24 +106,23 @@ public class NgaServiceImpl implements NgaService {
                     sb.append("[img]./").append(url).append("[/img]").append(NBSP);
                 }
             }
-            paramMap.put("post_content", new String[]{sb.toString()});
         }
-
-//        String post = RequestUtil.post("https://bbs.nga.cn/post.php",
-//                "", paramMap, null, cookie, "gbk");
+        paramMap.put("post_content", new String[]{sb.toString()});
         String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
                 paramMap, cookie, null, null, null, null, "gbk");
-        log.info(post);
-        if (post.contains("发贴完毕")) {
-            int s = post.indexOf("/read.php?tid=");
-            int e = post.indexOf("\",\"5\"");
-            post = "https://bbs.nga.cn" + post.substring(s, e);
-            log.info("已发帖 标题： " + title + " 地址：" + post);
-        }
-        if (post.contains("你没有登录")) {
-            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
+
+        if (!post.contains("发贴完毕")) {
+            log.info(post);
         }
 
+        if (post.contains("你没有登录")) {
+            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
+
+        }
+        if (post.contains("标题过短或过长")) {
+            log.info("标题:{}", paramMap.get("post_subject")[0]);
+            post = "标题过短或过长";
+        }
         return post;
     }
 
@@ -148,7 +130,7 @@ public class NgaServiceImpl implements NgaService {
             , String cookie, String action, String fid, String tid) {
         List<String> urls = null;
         if (files != null) {
-            
+
             //请求attach_url和auth
             StringBuilder urlbuilder = new StringBuilder("https://bbs.nga.cn/post.php?");
             urlbuilder
@@ -232,25 +214,6 @@ public class NgaServiceImpl implements NgaService {
         return JSONObject.parseObject(s);
     }
 
-
-    /**
-     * 把html代码中的a标签替换为NGA格式的链接
-     *
-     * @param html html代码
-     */
-    public static String replaceLinks(String html) {
-        Document document = Jsoup.parse(html);
-        html = document.text();
-        Elements aTags = document.getElementsByTag("a");
-        for (Element aTag : aTags) {
-            String href = aTag.attr("href").replace("\\\"", "");
-            String text = aTag.text();
-            String ngaTag = "[url=" + href + "]" + text + "[/url]";
-            html = html.replace(text, ngaTag);
-        }
-
-        return html;
-    }
 
     /**
      * 根据名称查找对应的fid、tid或cookie
