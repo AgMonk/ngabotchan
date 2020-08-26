@@ -125,7 +125,7 @@ public class WeiboCard {
         this.rawText = result;
         this.content = Jsoup.parse(result).text();
         this.bbsCode = replaceLinks(result);
-        this.bbsCode += "[url=" + sourceUrl + "]原微博[/url]";
+        this.bbsCode += "[url=" + sourceUrl + "]原微博[/url]" + nbsp + nbsp;
         return result;
     }
 
