@@ -207,7 +207,7 @@ public class WeiboCard {
         if (c == null || "".equals(c)) {
             return;
         }
-        StringBuilder tb = new StringBuilder("[微博搬运] ");
+        StringBuilder tb = new StringBuilder();
 
         boolean b = true;
         while (c.contains(well)) {
@@ -260,9 +260,13 @@ public class WeiboCard {
         } else {
             tb.append(c, 0, 20);
         }
-
+        if (tb.length() >= 65) {
+            tb.subSequence(0, 65);
+        }
+        if (tb.length() < 50) {
+            tb.insert(0, "[微博搬运] ");
+        }
         this.title = tb.toString();
-        this.title = this.title.length() >= 65 ? this.title.substring(0, 65) : this.title;
     }
 
     @Override
