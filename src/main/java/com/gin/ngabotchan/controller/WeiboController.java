@@ -146,6 +146,7 @@ public class WeiboController {
             for (WeiboCard card : listNew) {
                 weiboService.repost("少女前线", "少前水楼", card, testMode);
             }
+            WeiboService.CARD_MAP_NEW.put("5611537367", new ArrayList<>());
         }
     }
 
