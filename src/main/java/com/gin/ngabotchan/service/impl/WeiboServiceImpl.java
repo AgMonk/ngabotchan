@@ -206,7 +206,7 @@ public class WeiboServiceImpl implements WeiboService {
                 card.parseTitle(uid);
                 card.downloadPics(downloadExecutor, log);
                 //添加到新卡片Map
-                if (System.currentTimeMillis() - card.getCreatedTime() < 5 * 60 * 1000) {
+                if (System.currentTimeMillis() - card.getCreatedTime() < 2 * 60 * 1000) {
                     synchronized (CARD_MAP_NEW) {
                         List<WeiboCard> cardList = CARD_MAP_NEW.get(uid);
                         cardList = cardList == null ? new ArrayList<>() : cardList;
