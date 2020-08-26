@@ -33,6 +33,7 @@ public class WeiboController {
      */
     static boolean testMode = true;
 
+
     /**
      * 已经转发过的微博id
      */
@@ -95,6 +96,19 @@ public class WeiboController {
         return list;
     }
 
+    @RequestMapping("/getCards")
+    public List<WeiboCard> getCards(String uid, Integer newCard) {
+        List<WeiboCard> cardList = WeiboService.CARD_MAP.get(uid);
+        if (cardList == null) {
+            weiboService.updateCards(uid);
+        }
+
+        if (newCard == null) {
+            return WeiboService.CARD_MAP.get(uid);
+        }
+        return WeiboService.CARD_MAP_NEW.get(uid);
+    }
+
 
     @RequestMapping("/auto")
     public String auto() {
@@ -115,14 +129,32 @@ public class WeiboController {
 
         list.forEach(card -> weiboService.parseGirlsFrontLineCards(card, false));
 
-
         return list;
     }
+
+    @Scheduled(cron = "1/10 * 15-18 * * *")
+    public void scanGf() {
+        weiboService.updateCards("5611537367");
+//        weiboService.updateCards("7308178516");
+
+        List<WeiboCard> listNew = WeiboService.CARD_MAP_NEW.get("5611537367");
+        if (listNew == null) {
+            return;
+        }
+        int size = listNew.size();
+        if (size > 0) {
+            for (WeiboCard card : listNew) {
+                weiboService.repost("少女前线", "少前水楼", card, testMode);
+            }
+            WeiboService.CARD_MAP_NEW.put("5611537367", new ArrayList<>());
+        }
+    }
+
 
     /**
      * 自动转发
      */
-    @Scheduled(cron = "0/10 * * * * *")
+//    @Scheduled(cron = "0/10 * 15-18 * * *")
     public void scScheduledGf() {
         if (!auto) {
             return;
