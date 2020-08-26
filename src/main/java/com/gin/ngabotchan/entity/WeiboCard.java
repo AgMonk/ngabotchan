@@ -49,6 +49,7 @@ public class WeiboCard {
         invalidKeyword.add("[少女前线] ");
         invalidKeyword.add("现在为您带来的是");
         invalidKeyword.add("现在为各位指挥官带来");
+        invalidKeyword.add("现在为大家带来");
     }
 
     String sourceUrl, id, createdAt, rawText, createdStr, content, title, bbsCode;
