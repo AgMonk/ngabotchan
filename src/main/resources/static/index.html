@@ -156,7 +156,7 @@
             },
 
             getWeibo() {
-                get("wb/gf", null, function (res) {
+                get("wb/getCards?uid=5611537367", null, function (res) {
                     console.log(res.data);
                     _this.weibo = res.data;
                 })

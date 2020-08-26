@@ -148,7 +148,8 @@ public class NgaServiceImpl implements NgaService {
             , String cookie, String action, String fid, String tid) {
         List<String> urls = null;
         if (files != null) {
-            //https://bbs.nga.cn/post.php?action=reply&_newui&fid=-547859&tid=15666793&__output=14
+            
+            //请求attach_url和auth
             StringBuilder urlbuilder = new StringBuilder("https://bbs.nga.cn/post.php?");
             urlbuilder
                     .append("action=").append(action).append("&")
@@ -178,10 +179,7 @@ public class NgaServiceImpl implements NgaService {
             JSONObject result = json.getJSONArray("result").getJSONObject(0);
             String attach_url = result.getString("attach_url");
             String auth = result.getString("auth");
-//
-//            System.err.println("attach_url:" + attach_url);
-//            System.err.println("auth:" + auth);
-            //请求attach_url和auth
+
 
             StringBuilder ab = new StringBuilder();
             StringBuilder acb = new StringBuilder();

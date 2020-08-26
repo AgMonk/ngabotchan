@@ -223,7 +223,7 @@ public class ReqUtil {
                         long end = System.currentTimeMillis();
                         log.debug("第{}次请求 成功 地址：{} 耗时：{}", times, m.getURI(), formatDuration(end - start));
                         result = EntityUtils.toString(response.getEntity(), enc);
-                        log.debug(result);
+//                        log.debug(result);
                         times = maxTimes;
                         break;
                     case HttpStatus.SC_NOT_FOUND:
