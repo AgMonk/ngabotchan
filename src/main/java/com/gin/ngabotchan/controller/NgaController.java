@@ -21,6 +21,6 @@ public class NgaController {
 
     @RequestMapping("/reply")
     public String reply(String content, String title, String fid, String tid, String cookie) {
-        return ngaService.reply(content, title, fid, tid, cookie, null);
+        return ngaService.reply(title, content, fid, tid, cookie, null);
     }
 }

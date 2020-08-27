@@ -1,12 +1,11 @@
 package com.gin.ngabotchan.service;
 
 
-import com.gin.ngabotchan.util.RequestUtil;
-
 import java.io.File;
 
 public interface NgaService {
-    String NBSP = RequestUtil.decode("%0D%0A");
+    String NBSP = "\r\n";
+//    String NBSP = RequestUtil.decode("%0D%0A");
 
     /**
      * 发表主题
@@ -30,7 +29,7 @@ public interface NgaService {
      * @param files
      * @return 返回
      */
-    String reply(String content, String title, String fid, String tid, String cookie, File[] files);
+    String reply(String title, String content, String fid, String tid, String cookie, File[] files);
 
 
 }
