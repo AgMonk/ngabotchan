@@ -152,7 +152,7 @@ public class WeiboCard {
             String href = aTag.attr("href").replace("\\\"", "");
             String text = aTag.text();
             String ngaTag = "[url=" + href + "]" + text + "[/url]";
-            html = html.replace(text, ngaTag).replace("[换行]", nbsp);
+            html = html.replaceFirst(text, ngaTag).replace("[换行]", nbsp);
         }
 
         html += nbsp + nbsp;
