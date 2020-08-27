@@ -27,6 +27,6 @@ public interface WeiboService {
      * @param card 微博
      * @return 响应结果
      */
-    String autoRepost(String fid, String tid, WeiboCard card, String cooke, boolean testMode);
+    String repost(String fid, String tid, WeiboCard card, String cookie, boolean testMode);
 
 }

@@ -46,6 +46,12 @@ public class WeiboController {
         return WeiboService.CARD_MAP_NEW.get(uid);
     }
 
+    @RequestMapping("/gf")
+    public List<WeiboCard> gf() {
+        return getCards(WeiboCard.UID_GIRLS_FRONT_LINE, null);
+    }
+
+
     @RequestMapping("/testMode")
     public String testMode() {
         testMode = !testMode;
@@ -55,7 +61,7 @@ public class WeiboController {
 
     @Scheduled(cron = "1/30 * 15-16 * * *")
     @Scheduled(cron = "1/10 * 17-18 * * *")
-    @Scheduled(cron = "* 0/30 * * * *")
+    @Scheduled(cron = "0 0/30 * * * *")
     public void scanGf() {
         String girlsFrontLine = WeiboCard.UID_GIRLS_FRONT_LINE;
 
@@ -71,7 +77,7 @@ public class WeiboController {
                 Collection<String> cookies = ConfigService.COOKIE_MAP.keySet();
 
                 for (String cookie : cookies) {
-                    String result = weiboService.autoRepost("少女前线", "少前水楼", card, cookie, testMode);
+                    String result = weiboService.repost("少女前线", "少前水楼", card, cookie, testMode);
                     if (result.contains("http")) {
                         break;
                     }
@@ -81,5 +87,18 @@ public class WeiboController {
         }
     }
 
+    @RequestMapping("/repost")
+    public String repost(String fid, String tid, String cardId, String cookie, String action) {
+        WeiboCard card = null;
+        for (List<WeiboCard> value : WeiboService.CARD_MAP.values()) {
+            for (WeiboCard c : value) {
+                if (c.getId().equals(cardId)) {
+                    card = c;
+                    break;
+                }
+            }
+        }
+        return weiboService.repost(fid, tid, card, cookie, !"new".equals(action));
+    }
 
 }

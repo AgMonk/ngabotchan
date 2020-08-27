@@ -32,8 +32,6 @@ public class NgaServiceImpl implements NgaService {
         cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
 
-        title = title.length() > MAX_TITLE_LENGTH ? title.substring(0, MAX_TITLE_LENGTH) : title;
-
         Map<String, String[]> paramMap = createParamMap("new", fid, null, title);
 
         List<String> urlList = uploadFiles(paramMap, files, cookie, "new", fid, "");
@@ -46,10 +44,7 @@ public class NgaServiceImpl implements NgaService {
             post = "https://bbs.nga.cn" + post.substring(s, e);
             log.info("已发帖 标题： " + title + " 地址：" + post);
         }
-        if (post.contains("你没有登录")) {
-            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
 
-        }
 
         return post;
     }
@@ -69,8 +64,6 @@ public class NgaServiceImpl implements NgaService {
         cookie = findCookieFidTid(cookie, ConfigService.COOKIE_MAP);
         fid = findCookieFidTid(fid, ConfigService.FID_MAP);
         tid = findCookieFidTid(tid, ConfigService.TID_MAP);
-        title = title.replace(NBSP, "").replace("\\n", "");
-        title = title.length() > MAX_TITLE_LENGTH ? title.substring(0, MAX_TITLE_LENGTH) : title;
 
         Map<String, String[]> paramMap = createParamMap("reply", fid, tid, title);
 
@@ -82,10 +75,7 @@ public class NgaServiceImpl implements NgaService {
             int s = post.indexOf("/read.php?tid=");
             int e = post.indexOf("\",\"5\"");
             post = "https://bbs.nga.cn" + post.substring(s, e);
-            log.info("已发帖 标题： " + title + " 地址：" + post);
-        }
-        if (post.contains("你没有登录")) {
-            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
+            log.info("已发帖 标题： " + title);
         }
 
         return post;
@@ -106,8 +96,8 @@ public class NgaServiceImpl implements NgaService {
     }
 
     private static String send(String content, String cookie, Map<String, String[]> paramMap, List<String> urlList) {
+        StringBuilder sb = new StringBuilder(content);
         if (urlList != null) {
-            StringBuilder sb = new StringBuilder(content);
             for (String url : urlList) {
                 if (url.contains("mp4")) {
                     sb.append("[flash=video]./").append(url).append("[/flash]").append(NBSP);
@@ -116,11 +106,19 @@ public class NgaServiceImpl implements NgaService {
                     sb.append("[img]./").append(url).append("[/img]").append(NBSP);
                 }
             }
-            paramMap.put("post_content", new String[]{sb.toString()});
         }
+        paramMap.put("post_content", new String[]{sb.toString()});
         String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
                 paramMap, cookie, null, null, null, null, "gbk");
         log.info(post);
+        if (post.contains("你没有登录")) {
+            post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
+
+        }
+        if (post.contains("标题过短或过长(10~130 byte)")) {
+            log.info("标题:{}", paramMap.get("post_subject")[0]);
+            post = "标题过短或过长(10~130 byte)";
+        }
         return post;
     }
 

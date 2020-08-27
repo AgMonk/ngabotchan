@@ -72,7 +72,7 @@
         <tr class="alt">
             <td>账号</td>
             <td>
-                <select v-model="repost.cookie">
+                <select v-model="repostData.cookie">
                     <option v-for="item in config.cookie">{{item}}</option>
                 </select>
             </td>
@@ -80,7 +80,7 @@
         <tr>
             <td>版面</td>
             <td>
-                <select v-model="repost.fid">
+                <select v-model="repostData.fid">
                     <option v-for="item in config.fid">{{item}}</option>
                 </select>
             </td>
@@ -88,14 +88,13 @@
         <tr class="alt">
             <td>主题</td>
             <td>
-                <select v-model="repost.tid">
+                <select v-model="repostData.tid">
                     <option v-for="item in config.tid">{{item}}</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td colspan="2">
-                <button @click="auto()">自动开关</button>&nbsp;
                 <button @click="testMode()">测试模式</button>&nbsp;
             </td>
 
@@ -111,13 +110,13 @@
         </tr>
         <tr>
             <td>标题
-                <button @click="repostTheme(item.title,item.content)">转发主题</button>
+                <button @click="repost('new',item.id)">转发主题</button>
             </td>
             <td><input type="text" :value="item.title"></td>
         </tr>
         <tr>
             <td>正文
-                <button @click="repostReply(item.title,item.content)">转发回复</button>
+                <button @click="repost('reply',item.id)">转发回复</button>
             </td>
             <td><textarea style="width: 80%" rows="7">{{item.content}}</textarea></td>
         </tr>
@@ -135,9 +134,9 @@
                 fid: {},
                 tid: {},
             },
-            repost: {
-                title: "",
-                content: "",
+            repostData: {
+                action: "",
+                cardId: "",
                 fid: "",
                 cookie: "",
                 tid: "",
@@ -149,24 +148,23 @@
                 get("config/get", null, function (res) {
                     console.log(res.data);
                     _this.config = res.data;
-                    _this.repost.cookie = res.data.cookie[0]
-                    _this.repost.fid = res.data.fid[0]
-                    _this.repost.tid = res.data.tid[0]
+                    _this.repostData.cookie = res.data.cookie[0]
+                    _this.repostData.fid = res.data.fid[0]
+                    _this.repostData.tid = res.data.tid[0]
                 })
             },
 
             getWeibo() {
-                get("wb/getCards?uid=5611537367", null, function (res) {
+                get("wb/gf", null, function (res) {
                     console.log(res.data);
                     _this.weibo = res.data;
                 })
             },
 
-            repostTheme(title, content) {
-                this.repost.title = title;
-                this.repost.content = content;
-
-                get("nga/newTheme", this.repost, function (res) {
+            repost(action, cardId) {
+                this.repostData.action = action;
+                this.repostData.cardId = cardId;
+                get("wb/repost", this.repostData, function (res) {
                     console.log(res.data);
                     if (res.data.includes("http")) {
                         window.open(res.data);
@@ -175,24 +173,8 @@
                     }
                 })
             },
-            repostReply(title, content) {
-                this.repost.title = title;
-                this.repost.content = content;
 
-                get("nga/reply", this.repost, function (res) {
-                    console.log(res.data);
-                    if (res.data.includes("http")) {
-                        window.open(res.data);
-                    } else {
-                        alert(res.data)
-                    }
-                })
-            },
-            auto() {
-                get("wb/auto", null, function (res) {
-                    alert(res.data)
-                })
-            },
+
             testMode() {
                 get("wb/testMode", null, function (res) {
                     alert(res.data)

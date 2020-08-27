@@ -40,13 +40,13 @@ public class WeiboServiceImpl implements WeiboService {
      * @return 响应结果
      */
     @Override
-    public String autoRepost(String fid, String tid, WeiboCard card, String cookie, boolean testMode) {
-        log.info("自动发帖：" + card.getTitle());
+    public String repost(String fid, String tid, WeiboCard card, String cookie, boolean testMode) {
+        log.info("发帖：{} id: {}", card.getTitle(), card.getId());
         String s = "";
         if (testMode) {
-            s = ngaService.reply(card.getBbsCode(), card.getTitle(), fid, tid, cookie, card.getPicFiles());
+            s = ngaService.reply(card.getTitle(), card.getBbsCode(), fid, tid, cookie, card.getPicFiles());
         } else {
-            s = ngaService.newTheme(card.getBbsCode(), card.getTitle(), fid, cookie, card.getPicFiles());
+            s = ngaService.newTheme(card.getTitle(), card.getBbsCode(), fid, cookie, card.getPicFiles());
         }
         if (s.contains("http")) {
             log.info("发帖成功 地址:{}", s);
@@ -83,7 +83,7 @@ public class WeiboServiceImpl implements WeiboService {
         }
 
         if (b) {
-            log.info("没有新微博 UID:" + uid);
+            log.debug("没有新微博 UID:" + uid);
             return;
         }
 

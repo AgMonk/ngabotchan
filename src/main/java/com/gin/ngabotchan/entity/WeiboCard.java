@@ -46,7 +46,8 @@ public class WeiboCard {
     static {
         INVALID_KEYWORD.add("亲爱的指挥官们，");
         INVALID_KEYWORD.add("亲爱的指挥官，");
-        INVALID_KEYWORD.add("[少女前线] ");
+        INVALID_KEYWORD.add("[少女前线]");
+        INVALID_KEYWORD.add(" ");
         INVALID_KEYWORD.add("现在为您带来的是");
         INVALID_KEYWORD.add("现在为各位指挥官带来");
         INVALID_KEYWORD.add("现在为大家带来");
@@ -240,9 +241,10 @@ public class WeiboCard {
             tb.subSequence(0, 65);
         }
         if (tb.length() < 50) {
-            tb.insert(0, "[微博搬运] ");
+            tb.insert(0, "[微博搬运]");
         }
-        this.title = tb.toString();
+        this.title = tb.toString().replace(nbsp, "").replace("\n", "");
+        ;
     }
 
     @Override
