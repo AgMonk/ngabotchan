@@ -99,6 +99,7 @@ public class WeiboCard {
         String result = ReqUtil.get(sourceUrl, null, null, null);
         result = result.substring(result.indexOf("\"text\":") + 9);
         result = result.substring(0, result.indexOf("\","));
+        result = result.replace("<br />", "[换行]");
         this.rawText = result;
         this.content = Jsoup.parse(result).text();
         this.bbsCode = replaceLinks(result);
@@ -151,7 +152,7 @@ public class WeiboCard {
             String href = aTag.attr("href").replace("\\\"", "");
             String text = aTag.text();
             String ngaTag = "[url=" + href + "]" + text + "[/url]";
-            html = html.replace(text, ngaTag);
+            html = html.replace(text, ngaTag).replace("[换行]", nbsp);
         }
 
         html += nbsp + nbsp;
