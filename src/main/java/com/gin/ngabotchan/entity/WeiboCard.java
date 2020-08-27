@@ -122,7 +122,7 @@ public class WeiboCard {
                 String pathname = dirPath + "/" + pic.substring(pic.lastIndexOf("/") + 1);
                 File img = new File(pathname);
                 if (!img.exists()) {
-                    log.debug("下载文件({})：" + pic, id);
+                    log.info("下载文件({})：" + pic, id);
                     HttpUtil.downloadFile(pic, dir, 30 * 1000);
                 }
                 latch.countDown();
