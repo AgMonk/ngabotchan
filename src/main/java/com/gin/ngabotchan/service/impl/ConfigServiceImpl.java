@@ -88,7 +88,7 @@ public class ConfigServiceImpl implements ConfigService {
         }
 
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
 
             String line;
             while ((line = reader.readLine()) != null) {
