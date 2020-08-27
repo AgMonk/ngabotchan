@@ -110,14 +110,18 @@ public class NgaServiceImpl implements NgaService {
         paramMap.put("post_content", new String[]{sb.toString()});
         String post = ReqUtil.post("https://bbs.nga.cn/post.php", null, null,
                 paramMap, cookie, null, null, null, null, "gbk");
-        log.info(post);
+
+        if (!post.contains("发贴完毕")) {
+            log.info(post);
+        }
+
         if (post.contains("你没有登录")) {
             post = "请先在cookie.txt文件中设置发帖的账号cookie，并选择发帖账号";
 
         }
-        if (post.contains("标题过短或过长(10~130 byte)")) {
+        if (post.contains("标题过短或过长")) {
             log.info("标题:{}", paramMap.get("post_subject")[0]);
-            post = "标题过短或过长(10~130 byte)";
+            post = "标题过短或过长";
         }
         return post;
     }

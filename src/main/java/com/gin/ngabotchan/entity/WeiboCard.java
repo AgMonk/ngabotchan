@@ -51,6 +51,7 @@ public class WeiboCard {
         INVALID_KEYWORD.add("现在为您带来的是");
         INVALID_KEYWORD.add("现在为各位指挥官带来");
         INVALID_KEYWORD.add("现在为大家带来");
+        INVALID_KEYWORD.add("现在为您送上");
     }
 
     String sourceUrl, id, createdAt, rawText, createdStr, content, title, bbsCode;
