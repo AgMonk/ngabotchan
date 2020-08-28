@@ -37,7 +37,7 @@ public class WeiboController {
     @RequestMapping("/getCards")
     public List<WeiboCard> getCards(String uid, Integer newCard) {
         List<WeiboCard> cardList = WeiboService.CARD_MAP.get(uid);
-        if (System.currentTimeMillis() - lastUpdate > 10 * 1000) {
+        if (System.currentTimeMillis() - lastUpdate >= 10 * 1000) {
             lastUpdate = System.currentTimeMillis();
             weiboService.updateCards(uid);
         }

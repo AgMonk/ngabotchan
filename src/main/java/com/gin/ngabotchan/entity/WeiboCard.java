@@ -32,7 +32,6 @@ import java.util.concurrent.Executor;
 @Data
 @Slf4j
 public class WeiboCard {
-    //    static String nbsp = NgaService.NBSP;
     static String nbsp = "\r\n";
     static String pattern = "EEE MMM dd HH:mm:ss Z yyyy";
     static String pattern2 = "yyyy-MM-dd HH:mm:ss";
@@ -285,6 +284,7 @@ public class WeiboCard {
      * @return
      */
     private static String lengthLimit(String s, int limit, String charset) {
+        charset = charset == null ? "utf-8" : charset;
         try {
             byte[] bytes = s.getBytes("GBK");
             byte[] newBytes = Arrays.copyOf(bytes, limit);
@@ -292,14 +292,14 @@ public class WeiboCard {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return null;
+        return s;
     }
 
     /**
      * 获取真实地址
      *
      * @param url 短链接
-     * @return
+     * @return 真实地址
      */
     private static String getRealURL(String url) {
         String realURL = null;
@@ -307,14 +307,29 @@ public class WeiboCard {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
+            //如果短链接指向的是微博内部地址，这一步已经拿到真实地址
             realURL = response.request().url().toString();
-
+            //如果是外链则拿到的和原地址相同，此时response拿到的是一个网页，需要从中获取到真实地址
             if (realURL.equals(url)) {
                 String body = new String(response.body().bytes());
+                //这里body拿到的是一串html代码 有用的部分在这里 你可以选择用Jsoup解析或者自己截取字符串
+//                <div class="wrap">
+//                <p class="desc">如需浏览，请长按网址复制后使用浏览器访问</p>
+//                <p class="link">https://********/</p>
+//                </div>
+                log.info(body);
+
+                //Jsoup解析
                 Document document = Jsoup.parse(body);
                 Element link = document.getElementsByClass("link").get(0);
                 realURL = link.text();
+
+                //截取字符串
+//                int start = body.indexOf("<p class=\"link\">") + 16;
+//                int end = body.indexOf("</p>", start);
+//                realURL = body.substring(start, end);
             }
+            response.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
