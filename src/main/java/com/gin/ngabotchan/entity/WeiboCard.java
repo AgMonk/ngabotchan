@@ -315,6 +315,7 @@ public class WeiboCard {
                 Element link = document.getElementsByClass("link").get(0);
                 realURL = link.text();
             }
+            response.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
