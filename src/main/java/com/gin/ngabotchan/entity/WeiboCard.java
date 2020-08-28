@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -44,14 +45,14 @@ public class WeiboCard {
     final static List<String> INVALID_KEYWORD = new ArrayList<>();
 
     static {
-        INVALID_KEYWORD.add("亲爱的指挥官们，");
-        INVALID_KEYWORD.add("亲爱的指挥官，");
-        INVALID_KEYWORD.add("[少女前线]");
+        INVALID_KEYWORD.add("亲爱.+?们，");
+        INVALID_KEYWORD.add("亲爱.+?官，");
+        INVALID_KEYWORD.add("\\[少女前线\\]");
+        INVALID_KEYWORD.add("现在.+?的是");
+        INVALID_KEYWORD.add("现在.+?来");
+        INVALID_KEYWORD.add("现在.+?上");
+        INVALID_KEYWORD.add("今天为您.+?是");
         INVALID_KEYWORD.add(" ");
-        INVALID_KEYWORD.add("现在为您带来的是");
-        INVALID_KEYWORD.add("现在为各位指挥官带来");
-        INVALID_KEYWORD.add("现在为大家带来");
-        INVALID_KEYWORD.add("现在为您送上");
     }
 
     String sourceUrl, id, createdAt, rawText, createdStr, content, title, bbsCode;
@@ -78,18 +79,6 @@ public class WeiboCard {
         try {
             this.createdTime = sdf.parse(this.createdAt).getTime();
             this.createdStr = format.format(new Date(this.createdTime));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setCreatedTime(String createdTime) {
-        try {
-            this.createdTime = sdf.parse(createdTime).getTime();
-
-            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("CTT"));
-
-            createdStr = format.format(new Date(this.createdTime));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -200,9 +189,7 @@ public class WeiboCard {
 
         //删除废话
         for (String s : INVALID_KEYWORD) {
-            if (c.contains(s)) {
-                c = c.replace(s, "");
-            }
+            c = c.replaceAll(s, "");
         }
 
         String exclamation = "！";
@@ -212,23 +199,25 @@ public class WeiboCard {
             tb.append(c, 0, c.indexOf(comma) + 1);
             String t = c.substring(c.indexOf(comma) + 1);
             int start = t.indexOf("介绍的是") + 4;
-            int end = t.indexOf(comma);
-            tb.append(t.substring(start, end));
+            int end = t.indexOf(comma, start);
+            tb.append(t, start, end);
 
         } else if (c.contains("维护具体结束时间")) {
             //维护公告
             int start = c.indexOf("计划于") + 3;
-            int end = c.indexOf("进行");
+            int end = c.indexOf("进行", start);
             tb.append("维护公告： ").append(c, start, end);
         } else if (c.contains("维护延长")) {
             //维护延长公告
             int start = c.indexOf("原定于");
-            int end = c.indexOf("开服。") + 3;
+            int end = c.indexOf("开服。", start) + 3;
             tb.append("维护延长公告：").append(c, start, end);
         } else if (c.contains("服装商城")) {
             int start = c.indexOf("指挥官");
-            int end = c.indexOf(comma);
+            int end = c.indexOf(comma, start);
             tb.append(c, start, end).append(c.substring(c.indexOf("将在"), start));
+        } else if (c.contains("问题说明")) {
+            tb.append("问题说明");
         } else if (c.contains(exclamation) || c.contains(period)) {
             //有感叹号或句号
             int e1 = c.indexOf(exclamation);
@@ -239,13 +228,17 @@ public class WeiboCard {
         } else {
             tb.append(c, 0, 20);
         }
-        if (tb.length() >= 65) {
-            tb.subSequence(0, 65);
+
+        String ti = lengthLimit(tb.toString(), 130, "GBK");
+
+        try {
+            if (ti.getBytes("GBK").length < 115) {
+                ti = "[微博搬运]" + ti;
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        if (tb.length() < 50) {
-            tb.insert(0, "[微博搬运]");
-        }
-        this.title = tb.toString().replace(nbsp, "").replace("\n", "");
+        this.title = ti.replace(nbsp, "").replace("\n", "");
         ;
     }
 
@@ -266,5 +259,23 @@ public class WeiboCard {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    /**
+     * 将字符串限定在指定字节数
+     *
+     * @param s
+     * @param limit
+     * @return
+     */
+    private static String lengthLimit(String s, int limit, String charset) {
+        try {
+            byte[] bytes = s.getBytes("GBK");
+            byte[] newBytes = Arrays.copyOf(bytes, limit);
+            return new String(newBytes, charset).trim();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
