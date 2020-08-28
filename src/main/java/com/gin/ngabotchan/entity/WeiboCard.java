@@ -5,6 +5,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gin.ngabotchan.util.ReqUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +30,7 @@ import java.util.concurrent.Executor;
  * @author bx002
  */
 @Data
+@Slf4j
 public class WeiboCard {
     //    static String nbsp = NgaService.NBSP;
     static String nbsp = "\r\n";
@@ -88,6 +94,10 @@ public class WeiboCard {
         String result = ReqUtil.get(sourceUrl, null, null, null);
         result = result.substring(result.indexOf("\"text\":") + 9);
         result = result.substring(0, result.indexOf("\","));
+        result = result
+                .replace("\\\"", "\"")
+                .replace("'", "\"")
+                .replace("  ", " ");
         result = result.replace("<br />", "[换行]");
         this.rawText = result;
         this.content = Jsoup.parse(result).text();
@@ -135,16 +145,22 @@ public class WeiboCard {
      */
     private static String replaceLinks(String html) {
         Document document = Jsoup.parse(html);
-        html = document.text();
         Elements aTags = document.getElementsByTag("a");
         for (Element aTag : aTags) {
-            String href = aTag.attr("href").replace("\\\"", "");
+            String eHtml = aTag.toString().replace("&amp;", "&");
+            String href = aTag.attr("href");
+            if (!href.contains("http")) {
+                href = "https://m.weibo.cn" + href;
+            }
+            if (href.contains("/t.cn")) {
+                log.debug("发现短链接 正在获取原链接。。");
+                href = getRealURL(href);
+            }
             String text = aTag.text();
-            String ngaTag = "[url=" + href + "]" + text + "[/url]";
-            html = html.replaceFirst(text, ngaTag).replace("[换行]", nbsp);
+            String ngaLink = "[url=" + href + "]" + text + "[/url]";
+            html = html.replace(eHtml, ngaLink);
         }
-
-        html += nbsp + nbsp;
+        html = html.replace("[换行]", nbsp) + nbsp + nbsp;
         return html;
     }
 
@@ -277,5 +293,31 @@ public class WeiboCard {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 获取真实地址
+     *
+     * @param url 短链接
+     * @return
+     */
+    private static String getRealURL(String url) {
+        String realURL = null;
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(url).build();
+            Response response = client.newCall(request).execute();
+            realURL = response.request().url().toString();
+
+            if (realURL.equals(url)) {
+                String body = new String(response.body().bytes());
+                Document document = Jsoup.parse(body);
+                Element link = document.getElementsByClass("link").get(0);
+                realURL = link.text();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return realURL;
     }
 }
