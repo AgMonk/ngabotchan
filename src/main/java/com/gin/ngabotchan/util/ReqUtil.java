@@ -216,7 +216,7 @@ public class ReqUtil {
                         Thread.sleep(5 * 1000);
                         break;
                     case HttpStatus.SC_MOVED_TEMPORARILY:
-                        log.info("第{}次请求 连接被重定向({})", times, statusCode);
+                        log.info("第{}次请求 连接被重定向({}) 地址 {}", times, statusCode, response.getStatusLine());
                         times = maxTimes;
                         break;
                     case HttpStatus.SC_OK:
@@ -375,34 +375,7 @@ public class ReqUtil {
     }
 
 
-    public static void main(String[] args) {
-//        String s1 = post("https://bbs.nga.cn/post.php?action=new&_newui&fid=-547859&__output=14",
-//                null, null, null
-//                , NgaService.COOKIE_ZUO
-//                , null, null, null, null, "gbk");
-//        System.err.println(s1);
+    public static void main(String[] args) throws IOException {
 
-
-        File file = new File("D:\\Screenshots\\Screenshot_2020-08-21-10-10-51.png");
-        System.err.println(file.length());
-//        HashMap<String, String> formData = new HashMap<>();
-//        formData.put("attachment_file1_watermark", "");
-//        formData.put("attachment_file1_dscp", "附件说明");
-//        formData.put("attachment_file1_url_utf8_name", encode(file.getName(), "utf-8"));
-//        formData.put("attachment_file1_auto_size", "0");
-//        formData.put("attachment_file1_img", "1");
-//        formData.put("func", "upload");
-//        formData.put("v2", "1");
-//        formData.put("auth", "025ff03e5f44ae35462d6c61786c7cca91b1640376343b6755ad9555341a");
-//        formData.put("origin_domain", "bbs.nga.cn");
-//        formData.put("fid", "-993945");
-//        formData.put("__output", "8");
-//        HashMap<String, File> fileMap = new HashMap<>();
-//        fileMap.put("attachment_file1", file);
-//        String s = post("https://img7.nga.178.com:8081/attach.php", "", null,
-//                null, null, null, formData, fileMap,
-//                null, "gbk");
-//        JSONObject jsonObject = JSONObject.parseObject(s);
-//        System.err.println(encode(file.getName(), "utf-8"));
     }
 }
