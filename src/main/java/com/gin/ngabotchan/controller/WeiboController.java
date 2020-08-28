@@ -24,9 +24,10 @@ public class WeiboController {
      * 测试模式开关，测试模式下将把搬运内容发到水楼；关闭后发到主版面
      */
     static boolean testMode = true;
-
     final NgaService ngaService;
     final WeiboService weiboService;
+
+    long lastUpdate = 0;
 
     public WeiboController(NgaService ngaService, WeiboService weiboService) {
         this.ngaService = ngaService;
@@ -36,7 +37,8 @@ public class WeiboController {
     @RequestMapping("/getCards")
     public List<WeiboCard> getCards(String uid, Integer newCard) {
         List<WeiboCard> cardList = WeiboService.CARD_MAP.get(uid);
-        if (cardList == null) {
+        if (System.currentTimeMillis() - lastUpdate > 10 * 1000) {
+            lastUpdate = System.currentTimeMillis();
             weiboService.updateCards(uid);
         }
 
@@ -65,6 +67,7 @@ public class WeiboController {
     public void scanGf() {
         String girlsFrontLine = WeiboCard.UID_GIRLS_FRONT_LINE;
 
+        lastUpdate = System.currentTimeMillis();
         weiboService.updateCards(girlsFrontLine);
 
         List<WeiboCard> listNew = WeiboService.CARD_MAP_NEW.get(girlsFrontLine);
