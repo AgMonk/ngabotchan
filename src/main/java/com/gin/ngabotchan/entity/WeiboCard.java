@@ -32,7 +32,6 @@ import java.util.concurrent.Executor;
 @Data
 @Slf4j
 public class WeiboCard {
-    //    static String nbsp = NgaService.NBSP;
     static String nbsp = "\r\n";
     static String pattern = "EEE MMM dd HH:mm:ss Z yyyy";
     static String pattern2 = "yyyy-MM-dd HH:mm:ss";
@@ -285,6 +284,7 @@ public class WeiboCard {
      * @return
      */
     private static String lengthLimit(String s, int limit, String charset) {
+        charset = charset == null ? "utf-8" : charset;
         try {
             byte[] bytes = s.getBytes("GBK");
             byte[] newBytes = Arrays.copyOf(bytes, limit);
@@ -292,7 +292,7 @@ public class WeiboCard {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return null;
+        return s;
     }
 
     /**
