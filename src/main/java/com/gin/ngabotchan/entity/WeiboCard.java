@@ -217,6 +217,17 @@ public class WeiboCard {
             int end = t.indexOf(comma, start);
             tb.append(t, start, end);
 
+        } else if (c.contains("三星融合势力单位——")) {
+            //铁血boss
+            int beginIndex = c.indexOf("三星融合势力单位——");
+            int endIndex = c.indexOf("的", beginIndex);
+            String bossName = c.substring(beginIndex, endIndex);
+
+            beginIndex = c.indexOf("将于", endIndex);
+            endIndex = c.indexOf("开放", beginIndex) + 2;
+            String lastTime = c.substring(beginIndex, endIndex);
+
+            tb.append(bossName).append(" ").append(lastTime);
         } else if (c.contains("维护具体结束时间")) {
             //维护公告
             int start = c.indexOf("计划于") + 3;
@@ -243,17 +254,20 @@ public class WeiboCard {
         } else {
             tb.append(c, 0, 20);
         }
-
-        String ti = lengthLimit(tb.toString(), 130, "GBK");
+        String til = tb.toString()
+                .replace("[换行]", "")
+                .replace(nbsp, "")
+                .replace("\n", "");
+        til = lengthLimit(til, 130, "GBK");
 
         try {
-            if (ti.getBytes("GBK").length < 115) {
-                ti = "[微博搬运]" + ti;
+            if (til.getBytes("GBK").length < 115) {
+                til = "[微博搬运]" + til;
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        this.title = ti.replace(nbsp, "").replace("\n", "");
+        this.title = til;
         ;
     }
 
