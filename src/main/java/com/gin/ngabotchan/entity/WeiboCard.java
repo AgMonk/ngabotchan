@@ -46,6 +46,8 @@ public class WeiboCard {
      * 云图计划 7308178516
      */
     public final static String UID_PLAN_OF_CLOUD = "7308178516";
+    //薯妈
+    public final static String UID_IMOKO = "1934379845";
 
     final static List<String> INVALID_KEYWORD = new ArrayList<>();
 
@@ -176,9 +178,17 @@ public class WeiboCard {
                 break;
             case UID_PLAN_OF_CLOUD:
                 break;
+            case UID_IMOKO:
+                parseImoko();
+
+                break;
             default:
                 break;
         }
+    }
+
+    private void parseImoko() {
+        title = "[薯片搬运]" + content;
     }
 
     /**

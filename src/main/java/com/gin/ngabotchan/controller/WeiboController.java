@@ -53,6 +53,10 @@ public class WeiboController {
         return getCards(WeiboCard.UID_GIRLS_FRONT_LINE, null);
     }
 
+    @RequestMapping("/imoko")
+    public List<WeiboCard> imoko() {
+        return getCards(WeiboCard.UID_IMOKO, null);
+    }
 
     @RequestMapping("/testMode")
     public String testMode() {

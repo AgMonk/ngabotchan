@@ -94,10 +94,12 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td>
                 <button @click="testMode()">测试模式</button>&nbsp;
             </td>
-
+            <td>
+                <button @click="getImoko()">薯妈</button>&nbsp;
+            </td>
         </tr>
     </table>
     <br><br>
@@ -156,6 +158,12 @@
 
             getWeibo() {
                 get("wb/gf", null, function (res) {
+                    console.log(res.data);
+                    _this.weibo = res.data;
+                })
+            },
+            getImoko() {
+                get("wb/imoko", null, function (res) {
                     console.log(res.data);
                     _this.weibo = res.data;
                 })
