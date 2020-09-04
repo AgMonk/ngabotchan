@@ -92,7 +92,7 @@ public class ConfigServiceImpl implements ConfigService {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                log.info("读取: " + line);
+                log.info("读取: {}", line.substring(0, 10));
                 String key = line.substring(0, line.indexOf(":"));
                 String value = line.substring(line.indexOf(":") + 1);
                 map.put(key, value);
