@@ -1,3 +1,4 @@
+chcp 65001
 start http://localhost:65535/index.html
-java -jar ngabotchan-0.0.1-SNAPSHOT.war
+java  -Dfile.encoding=utf-8 -jar ngabotchan-0.0.1-SNAPSHOT.war
 
