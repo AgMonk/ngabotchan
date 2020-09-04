@@ -342,13 +342,16 @@ public class ReqUtil {
      */
     public static String encode(String s, String enc) {
         String encode = null;
-        enc = StringUtils.isEmpty(enc) ? "utf-8" : enc;
-        try {
-            encode = URLEncoder
-                    .encode(s, enc)
-                    .replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+
+        if (s != null) {
+            enc = StringUtils.isEmpty(enc) ? "utf-8" : enc;
+            try {
+                encode = URLEncoder
+                        .encode(s, enc)
+                        .replace("+", "%20");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
         return encode;
     }
