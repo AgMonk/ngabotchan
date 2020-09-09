@@ -220,7 +220,7 @@ public class WeiboCard {
         String exclamation = "！";
         String period = "。";
         String comma = "，";
-        if (c.contains("主题装扮") && c.contains("介绍第")) {
+        if (c.contains("主题装扮") && c.contains("装扮介绍")) {
             tb.append(c, 0, c.indexOf(comma) + 1);
             String t = c.substring(c.indexOf(comma) + 1);
             int start = t.indexOf("介绍的是") + 4;
